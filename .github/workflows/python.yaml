@@ -22,7 +22,7 @@ jobs:
         uses: astral-sh/ruff-action@v3
         with:
           src: "./myapi"
-          args: "--output-format=github"
+          args: "check --output-format=github"
 
       - name: Format the Python modules with ruff
         uses: astral-sh/ruff-action@v3
