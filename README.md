@@ -83,4 +83,4 @@ Start a local web server with `uv run --env-file .env uvicorn myapi.main:app`.
 
 ## License
 
-This project is licensed under the MIT License. For details refer to the [LICENSE.md](LICENSE.md) file.
+This project is licensed under the MIT License. For details refer to the [LICENSE](LICENSE) file.
