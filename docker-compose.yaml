@@ -5,22 +5,22 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:80
+    env_file:
+      - .env
     environment:
       DATABASE_HOST: database
-      DATABASE_PORT: 5432
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgrespassword
-      DATABASE_NAME: sakila
   database:
     image: postgres:16
     restart: unless-stopped
     user: postgres
     ports:
       - 5432:5432
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: sakila
+      POSTGRES_USER: $DATABASE_USER
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_DB: $DATABASE_NAME
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 1m30s
@@ -34,12 +34,10 @@ services:
       dockerfile: Dockerfile
     entrypoint: []
     command: ["python", "-m", "alembic", "upgrade", "head"]
+    env_file:
+      - .env
     environment:
       DATABASE_HOST: database
-      DATABASE_PORT: 5432
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgrespassword
-      DATABASE_NAME: sakila
     depends_on:
       database:
         condition: service_healthy

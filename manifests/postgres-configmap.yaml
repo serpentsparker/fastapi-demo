@@ -7,5 +7,5 @@ metadata:
     app.kubernetes.io/component: database
     app.kubernetes.io/part-of: myapi
 data:
-  POSTGRES_DB: sakila
+  POSTGRES_DB: myapi
   POSTGRES_USER: postgres
