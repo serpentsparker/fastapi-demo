@@ -15,16 +15,6 @@ The application is designed to run as a Docker container on Docker Compose, Dock
 * [Docker](https://docs.docker.com/get-docker/)
 * [minikube](https://minikube.sigs.k8s.io/docs/) (for local Kubernetes only)
 
-### Standalone Installation
-
-Run the standalone API server with an external PostgreSQL database using Docker:
-
-```Shell
-docker run -p 8080:8080 -e DATABASE_HOST=<DB_HOST_NAME> -e DATABASE_USER=<DB_USER> -e DATABASE_PASSWORD=<DB_PASSWORD> ghcr.io/serpentsparker/fastapi-demo
-```
-
-Refer to the [configuration](#configuration) section for a list of all environment variables.
-
 ### Installation with Docker Compose
 
 Clone this project to your local machine and navigate into the root directory:
@@ -89,9 +79,19 @@ After you have explored and used the application, stop and remove the local Kube
 minikube delete
 ```
 
+### Standalone Installation
+
+Run the standalone API server with an external PostgreSQL database using Docker:
+
+```Shell
+docker run -p 8080:80 -e DATABASE_HOST=<DB_HOST_NAME> -e DATABASE_USER=<DB_USER> -e DATABASE_PASSWORD=<DB_PASSWORD> ghcr.io/serpentsparker/fastapi-demo
+```
+
+Refer to the [configuration](#configuration) section for a list of all environment variables.
+
 ## Usage
 
-After a successful installation, explore the REST API documentation at `<api_url>/docs`, for example `http://localhost:8080/docs`.
+After a successful installation, explore the REST API documentation at `<api_url>/docs`, for example [http://localhost:8080/docs](http://localhost:8080/docs).
 
 Once opened, you are presented with the [Swagger UI](https://swagger.io/tools/swagger-ui/) that let's you interact with the API in your browser.
 
