@@ -1,4 +1,4 @@
-FROM python:3.13-slim AS builder
+FROM python:3.12-alpine AS builder
 
 # Install the uv package manager.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install -r requirements.txt --target /usr/src/app
 
 
-FROM python:3.13-slim
+FROM python:3.12-alpine
 
 WORKDIR /myapi
 
