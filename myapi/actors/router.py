@@ -2,7 +2,8 @@ from typing import Annotated
 
 import fastapi
 
-from myapi.actors import dependencies, exceptions, schemas, service
+from myapi.actors import exceptions, queries, schemas, service
+from myapi.shared import dependencies
 
 router = fastapi.APIRouter(
     prefix="/actors",
@@ -10,12 +11,16 @@ router = fastapi.APIRouter(
 )
 
 
+def get_actor_mapper(
+    database_session=fastapi.Depends(dependencies.get_database_session),
+) -> service.ActorMapper:
+    return queries.SQLAlchemyActorMapper(database_session)
+
+
 @router.post("/", response_model=schemas.ReadActorResponse)
 def create_actor(
     actor: schemas.CreateActorRequest,
-    actor_mapper: Annotated[
-        service.ActorMapper, fastapi.Depends(dependencies.get_actor_mapper)
-    ],
+    actor_mapper: Annotated[service.ActorMapper, fastapi.Depends(get_actor_mapper)],
 ):
     return actor_mapper.create_actor(actor.first_name, actor.last_name)
 
@@ -23,9 +28,7 @@ def create_actor(
 @router.get("/{actor_id}", response_model=schemas.ReadActorResponse)
 def read_actor(
     actor_id: int,
-    actor_mapper: Annotated[
-        service.ActorMapper, fastapi.Depends(dependencies.get_actor_mapper)
-    ],
+    actor_mapper: Annotated[service.ActorMapper, fastapi.Depends(get_actor_mapper)],
 ):
     try:
         return actor_mapper.read_actor(actor_id)
@@ -37,9 +40,7 @@ def read_actor(
 def update_actor(
     actor_id: int,
     new_attributes: schemas.UpdateActorRequest,
-    actor_mapper: Annotated[
-        service.ActorMapper, fastapi.Depends(dependencies.get_actor_mapper)
-    ],
+    actor_mapper: Annotated[service.ActorMapper, fastapi.Depends(get_actor_mapper)],
 ):
     try:
         if new_attributes.first_name:
@@ -56,9 +57,7 @@ def update_actor(
 @router.delete("/{actor_id}", response_model=schemas.DeleteActorResponse)
 def delete_actor(
     actor_id: int,
-    actor_mapper: Annotated[
-        service.ActorMapper, fastapi.Depends(dependencies.get_actor_mapper)
-    ],
+    actor_mapper: Annotated[service.ActorMapper, fastapi.Depends(get_actor_mapper)],
 ):
     try:
         actor_mapper.delete_actor(actor_id)

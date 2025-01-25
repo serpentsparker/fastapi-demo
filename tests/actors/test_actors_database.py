@@ -6,8 +6,8 @@ import pytest
 import sqlalchemy
 from sqlalchemy import orm
 
-from myapi import database as interfaces
-from myapi.actors import database, exceptions, models, service
+from myapi.actors import exceptions, queries, service
+from myapi.shared.database import models
 
 logger = logging.getLogger(__name__)
 
@@ -52,14 +52,13 @@ class TestActorRepository(metaclass=Singleton):
 @pytest.fixture(name="actor_table", scope="module", autouse=True)
 def create_actor_table(
     db_engine: sqlalchemy.Engine,
-    db_session_factory: interfaces.SQLAlchemySessionFactory,
+    db_session: orm.Session,
 ):
     """Creates the 'actor' table on the test database to be used for tests of this module.
 
     Args:
         db_engine (sqlalchemy.Engine): SQLAlchemy database engine for the test database.
-        db_session_factory (interfaces.SQLAlchemySessionFactory): Factory for SQLAlchemy sessions to
-            the engine's database.
+        db_session (orm.Session): SQLAlchemy ORM session for the test database.
 
     Yields:
         tuple[ list[service.Actor], list[models.Actor] ]: A tuple that contains two elements.
@@ -82,30 +81,25 @@ def create_actor_table(
     ]
 
     # Add the actors to the actor table on the test database
-    db_session = db_session_factory.get_session()
     db_session.add_all(db_actors)
     db_session.commit()
 
     yield domain_actors, db_actors
 
-    models.Actor.metadata.drop_all(db_engine)
-
 
 class TestSQLAlchemyActorMapper:
     @pytest.fixture(name="mapper_under_test", scope="class")
-    def get_mapper_under_test(
-        self, db_session_factory: interfaces.SQLAlchemySessionFactory
-    ):
+    def get_mapper_under_test(self, db_session: orm.Session):
         """Yields a generator of SQLAlchemyActorMapper that can be used by tests of this class.
 
         Yields:
             Iterator[database.SQLAlchemyActorMapper]: Generates SQLAlchemyActorMapper objects.
         """
 
-        yield database.SQLAlchemyActorMapper(db_session_factory)
+        yield queries.SQLAlchemyActorMapper(db_session)
 
     def test_create_actor_return_value(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
+        self, mapper_under_test: queries.SQLAlchemyActorMapper
     ):
         actor_repository = TestActorRepository()
 
@@ -117,7 +111,7 @@ class TestSQLAlchemyActorMapper:
         assert domain_actor == expected_actor
 
     def test_create_actor_database_record(
-        self, mapper_under_test: database.SQLAlchemyActorMapper, db_session: orm.Session
+        self, mapper_under_test: queries.SQLAlchemyActorMapper, db_session: orm.Session
     ):
         actor_repository = TestActorRepository()
 
@@ -128,7 +122,7 @@ class TestSQLAlchemyActorMapper:
 
         database_actor = (
             db_session.query(models.Actor)
-            .filter(models.Actor.actor_id == domain_actor.actor_id)
+            .filter(models.Actor.id == domain_actor.actor_id)
             .one()
         )
 
@@ -138,7 +132,7 @@ class TestSQLAlchemyActorMapper:
         assert database_actor_values.issuperset(expected_database_actor_values)
 
     def test_read_actor_return_value(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
+        self, mapper_under_test: queries.SQLAlchemyActorMapper
     ):
         actor_repository = TestActorRepository()
         test_actor_id = 3
@@ -148,14 +142,12 @@ class TestSQLAlchemyActorMapper:
 
         assert domain_actor == expected_actor
 
-    def test_read_missing_actor(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
-    ):
+    def test_read_missing_actor(self, mapper_under_test: queries.SQLAlchemyActorMapper):
         with pytest.raises(exceptions.ActorNotFoundError):
             mapper_under_test.read_actor(0)
 
     def test_read_actors_return_value(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
+        self, mapper_under_test: queries.SQLAlchemyActorMapper
     ):
         actor_repository = TestActorRepository()
 
@@ -165,19 +157,19 @@ class TestSQLAlchemyActorMapper:
         assert actors == expected_actors
 
     def test_update_missing_actor_first_name(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
+        self, mapper_under_test: queries.SQLAlchemyActorMapper
     ):
         with pytest.raises(exceptions.ActorNotFoundError):
             mapper_under_test.update_actor_first_name(0, "")
 
     def test_update_missing_actor_last_name(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
+        self, mapper_under_test: queries.SQLAlchemyActorMapper
     ):
         with pytest.raises(exceptions.ActorNotFoundError):
             mapper_under_test.update_actor_last_name(0, "")
 
     def test_delete_missing_actor(
-        self, mapper_under_test: database.SQLAlchemyActorMapper
+        self, mapper_under_test: queries.SQLAlchemyActorMapper
     ):
         with pytest.raises(exceptions.ActorNotFoundError):
             mapper_under_test.delete_actor(0)

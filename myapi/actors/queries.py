@@ -1,12 +1,12 @@
-from myapi import database
-from myapi.actors import exceptions, models, service
+from sqlalchemy import orm
+
+from myapi.actors import exceptions, service
+from myapi.shared.database import models
 
 
 class SQLAlchemyActorMapper(service.ActorMapper):
-    def __init__(
-        self, database_session_factory: database.SQLAlchemySessionFactory
-    ) -> None:
-        self._database = database_session_factory
+    def __init__(self, database_session: orm.Session) -> None:
+        self._db = database_session
 
     def create_actor(self, first_name: str, last_name: str) -> service.Actor:
         """Creates a new actor in the database and returns its primary key.
@@ -21,13 +21,12 @@ class SQLAlchemyActorMapper(service.ActorMapper):
 
         db_actor = models.Actor(first_name, last_name)
 
-        with self._database.get_session() as db:
-            db.add(db_actor)
-            db.commit()
-            db.refresh(db_actor)
+        self._db.add(db_actor)
+        self._db.commit()
+        self._db.refresh(db_actor)
 
         return service.Actor(
-            actor_id=db_actor.actor_id,
+            actor_id=db_actor.id,
             first_name=db_actor.first_name,
             last_name=db_actor.last_name,
         )
@@ -39,12 +38,11 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             list[actor.Actor]: List of actor instances.
         """
 
-        with self._database.get_session() as db:
-            db_actors = db.query(models.Actor).all()
+        db_actors = self._db.query(models.Actor).all()
 
         return [
             service.Actor(
-                actor_id=db_actor.actor_id,
+                actor_id=db_actor.id,
                 first_name=db_actor.first_name,
                 last_name=db_actor.last_name,
             )
@@ -64,14 +62,13 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             actor.Actor: Instance of the actor that matches the given ID.
         """
 
-        with self._database.get_session() as db:
-            db_actor = db.get(models.Actor, actor_id)
+        db_actor = self._db.get(models.Actor, actor_id)
 
-            if not db_actor:
-                raise exceptions.ActorNotFoundError(actor_id)
+        if not db_actor:
+            raise exceptions.ActorNotFoundError(actor_id)
 
         return service.Actor(
-            actor_id=db_actor.actor_id,
+            actor_id=db_actor.id,
             first_name=db_actor.first_name,
             last_name=db_actor.last_name,
         )
@@ -90,18 +87,17 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             actor.Actor: Instance of the updated actor.
         """
 
-        with self._database.get_session() as db:
-            db_actor = db.get(models.Actor, actor_id)
+        db_actor = self._db.get(models.Actor, actor_id)
 
-            if not db_actor:
-                raise exceptions.ActorNotFoundError(actor_id)
+        if not db_actor:
+            raise exceptions.ActorNotFoundError(actor_id)
 
-            db_actor.first_name = first_name
-            db.commit()
-            db.refresh(db_actor)
+        db_actor.first_name = first_name
+        self._db.commit()
+        self._db.refresh(db_actor)
 
         return service.Actor(
-            actor_id=db_actor.actor_id,
+            actor_id=db_actor.id,
             first_name=db_actor.first_name,
             last_name=db_actor.last_name,
         )
@@ -120,18 +116,17 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             actor.Actor: Instance of the updated actor.
         """
 
-        with self._database.get_session() as db:
-            db_actor = db.get(models.Actor, actor_id)
+        db_actor = self._db.get(models.Actor, actor_id)
 
-            if not db_actor:
-                raise exceptions.ActorNotFoundError(actor_id)
+        if not db_actor:
+            raise exceptions.ActorNotFoundError(actor_id)
 
-            db_actor.last_name = last_name
-            db.commit()
-            db.refresh(db_actor)
+        db_actor.last_name = last_name
+        self._db.commit()
+        self._db.refresh(db_actor)
 
         return service.Actor(
-            actor_id=db_actor.actor_id,
+            actor_id=db_actor.id,
             first_name=db_actor.first_name,
             last_name=db_actor.last_name,
         )
@@ -146,11 +141,10 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             ActorNotFoundError: Raised if no actor exists for the given actor ID.
         """
 
-        with self._database.get_session() as db:
-            db_actor = db.get(models.Actor, actor_id)
+        db_actor = self._db.get(models.Actor, actor_id)
 
-            if not db_actor:
-                raise exceptions.ActorNotFoundError(actor_id)
+        if not db_actor:
+            raise exceptions.ActorNotFoundError(actor_id)
 
-            db.delete(db_actor)
-            db.commit()
+        self._db.delete(db_actor)
+        self._db.commit()
