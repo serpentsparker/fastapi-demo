@@ -27,28 +27,80 @@ Refer to the [configuration](#configuration) section for a list of all environme
 
 ### Installation with Docker Compose
 
-Clone this project and start the complete application stack with Docker Compose:
+Clone this project to your local machine and navigate into the root directory:
+
+```Shell
+git clone https://github.com/serpentsparker/fastapi-demo.git
+cd fastapi-demo
+```
+
+The Docker Compose file requires a `.env` file at the project root. If it is your first time running this application, create a new environment file from [.env.example](.env.example):
 
 ```Shell
 cp .env.example .env
+```
+
+Start the complete application stack with Docker Compose:
+
+```Shell
 docker compose up -d
 ```
 
-Please note that the Docker Compose file requires a `.env` file at the project root. Take a look at [.env.example](.env.example) for an example environment file.
+Congratulations! You have successfully deployed the API and its database on your local machine. Take a look at the [Usage](#usage) section to find out how to access and use the application.
+
+After you have explored and used the application, stop and remove the complete application stack with Docker Compose:
+
+```Shell
+docker compose down
+```
 
 ### Installation on Kubernetes
 
-Clone this project and deploy the complete application stack to a Kubernetes cluster with kubectl:
+Clone this project to your local machine and navigate into the root directory:
+
+```Shell
+git clone https://github.com/serpentsparker/fastapi-demo.git
+cd fastapi-demo
+```
+
+Optional: If you are using a local Kubernetes cluster with minikube, start the minikube cluster:
+
+```Shell
+minikube start
+```
+
+Deploy the complete application stack to a Kubernetes cluster with kubectl:
 
 ```Shell
 kubectl apply -f ./manifests
 ```
 
-Please note that the Kubernetes manifests do not specify an Ingress. To access the API on a local minikube Kubernetes cluster, create a tunnel from your local machine to the Kubernetes service:
+Optional: If you are using a local Kubernetes cluster with minikube, create a tunnel from your local machine to the Kubernetes service:
 
 ```Shell
 minikube tunnel
 ```
+
+Congratulations! You have successfully deployed the API and its database to a Kubernetes cluster. Take a look at the [Usage](#usage) section to find out how to access and use the application.
+
+After you have explored and used the application, stop and remove the local Kubernetes cluster with minikube:
+
+```Shell
+minikube delete
+```
+
+## Usage
+
+After a successful installation, explore the REST API documentation at `<api_url>/docs`, for example `http://localhost:8080/docs`.
+
+Once opened, you are presented with the [Swagger UI](https://swagger.io/tools/swagger-ui/) that let's you interact with the API in your browser.
+
+The API provides an `actors` HTTP endpoint that responds to HTTP `POST`, `GET`, `PATCH`, and `DELETE` requests.
+
+* The `HTTP POST /actors` request is used to create new actors on the database. It takes a first name and a last name, and responds with attributes that describe the created actor.
+* The `HTTP GET /actors` request is used to read an existing actor from the database using its unique ID.
+* The `HTTP PATCH /actors` request is used to update an existing actor on the database. It takes a new first name, a new last name, or both, and responds with attributes that describe the updated actor.
+* The `HTTP DELETE /actors` request is used to delete an existing actor from the database using its unique ID.
 
 ## Configuration
 
@@ -64,7 +116,7 @@ Refer to the table below for a list of environment variables that can be used to
 
 ## Local Development
 
-This project uses [Python](https://www.python.org/) 3.12 or later. The [uv](https://docs.astral.sh/uv/) package manager is used for project and dependency management.
+This project uses [Python](https://www.python.org/) 3.12 or later. Additionally, the [uv](https://docs.astral.sh/uv/) package manager is used for project and dependency management.
 
 ### Development Dependencies
 
