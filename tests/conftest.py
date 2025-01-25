@@ -7,8 +7,7 @@ import pathlib
 
 import pytest
 import sqlalchemy
-
-from myapi.shared.database import session
+from sqlalchemy import orm
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,36 +59,19 @@ def db_engine(request: pytest.FixtureRequest):
 
 
 @pytest.fixture(scope="session")
-def db_session_factory(
-    db_engine: sqlalchemy.Engine,
-) -> session.SQLAlchemySessionFactory:
-    """Returns an instance of a SQLAlchemySessionFactory for the given database engine.
-
-    Args:
-        db_engine (sqlalchemy.Engine): SQLAlchemy engine to be used by the session factory.
-
-    Returns:
-        database.SQLAlchemySessionFactory: Factory for SQLAlchemy sessions to the engine's database.
-    """
-
-    return session.SQLAlchemySessionFactory(db_engine)
-
-
-@pytest.fixture(scope="module")
-def db_session(db_session_factory: session.SQLAlchemySessionFactory):
+def db_session(db_engine: sqlalchemy.Engine):
     """Yields a generator for scoped SQLAlchemy sessions to the test database.
 
     Args:
-        db_session_factory (database.SQLAlchemySessionFactory): Factory class for SQLAlchemy
-            sessions to the test database
+        db_engine (sqlalchemy.Engine): A SQLAlchemy database engine.
 
     Yields:
         Iterator[orm.Session]: Generator of SQLAlchemy database sessions for the test database.
     """
 
-    db_session = db_session_factory.get_session()
+    session = orm.scoped_session(orm.sessionmaker(db_engine))
 
-    yield db_session
+    yield session
 
-    db_session.rollback()
-    db_session.close()
+    session.rollback()
+    session.close()
