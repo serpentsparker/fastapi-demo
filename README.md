@@ -13,8 +13,7 @@ The application is designed to run as a Docker container on Docker Compose, Dock
 ### Dependencies
 
 * [Docker](https://docs.docker.com/get-docker/)
-
-To use the Kubernetes manifests of this project, a Kubernetes cluster is required. [minikube](https://minikube.sigs.k8s.io/docs/) allows to quickly setup a local Kubernetes cluster.
+* [minikube](https://minikube.sigs.k8s.io/docs/) (for local Kubernetes only)
 
 ### Standalone Installation
 
@@ -24,13 +23,14 @@ Run the standalone API server with an external PostgreSQL database using
 docker run -p 8080:8080 -e DATABASE_HOST=<DB_HOST_NAME> -e DATABASE_USER=<DB_USER> -e DATABASE_PASSWORD=<DB_PASSWORD> ghcr.io/serpentsparker/fastapi-demo
 ```
 
-Please note that the application requires environment variables to be set in your environment. Refer to the [configuration](#configuration) section for a list of environment variables.
+Refer to the [configuration](#configuration) section for a list of all environment variables.
 
 ### Installation with Docker Compose
 
-Clone this project and start the application stack with Docker Compose:
+Clone this project and start the complete application stack with Docker Compose:
 
 ```Shell
+cp .env.example .env
 docker compose up -d
 ```
 
@@ -38,7 +38,7 @@ Please note that the Docker Compose file requires a `.env` file at the project r
 
 ### Installation on Kubernetes
 
-Clone this project and deploy the application stack to a Kubernetes cluster with kubectl:
+Clone this project and deploy the complete application stack to a Kubernetes cluster with kubectl:
 
 ```Shell
 kubectl apply -f ./manifests
@@ -66,20 +66,27 @@ Refer to the table below for a list of environment variables that can be used to
 
 This project uses [Python](https://www.python.org/) 3.12 or later. The [uv](https://docs.astral.sh/uv/) package manager is used for project and dependency management.
 
-### Dependencies
+### Development Dependencies
 
 * [Python >=3.12](https://www.python.org/)
 * [uv >=0.5.0](https://docs.astral.sh/uv/)
+* [pre-commit >=4.0.0](https://pre-commit.com/)
 
-### Typical Workflow
+### Typical Development Workflow
 
 Run `uv sync --all-extras --dev` to install all application dependencies in a virtual environment.
 
-Define the required environment variables using a `.env` file. Take a look at [.env.example](.env.example) for an example environment file.
+Create the required `.env` file from [.env.example](.env.example) with `cp .env.example .env`.
 
 Start a local database with Docker Compose using `docker compose up -d database database-migrations`.
 
 Start a local web server with `uv run --env-file .env uvicorn myapi.main:app`.
+
+### Contributing
+
+Install Git pre-commit hooks with `pre-commit install`.
+
+Test the Python application using pytest with `uv run python -m pytest tests`.
 
 ## License
 
