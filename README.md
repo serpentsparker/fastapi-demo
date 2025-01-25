@@ -17,7 +17,7 @@ The application is designed to run as a Docker container on Docker Compose, Dock
 
 ### Standalone Installation
 
-Run the standalone API server with an external PostgreSQL database using
+Run the standalone API server with an external PostgreSQL database using Docker:
 
 ```Shell
 docker run -p 8080:8080 -e DATABASE_HOST=<DB_HOST_NAME> -e DATABASE_USER=<DB_USER> -e DATABASE_PASSWORD=<DB_PASSWORD> ghcr.io/serpentsparker/fastapi-demo
