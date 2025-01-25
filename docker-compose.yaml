@@ -9,7 +9,7 @@ services:
       DATABASE_HOST: database
       DATABASE_PORT: 5432
       DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres_password
+      DATABASE_PASSWORD: postgrespassword
       DATABASE_NAME: sakila
   database:
     image: postgres:16
@@ -17,9 +17,29 @@ services:
     user: postgres
     ports:
       - 5432:5432
-    volumes:
-      - ./data/init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: sakila
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+
+  database-migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: []
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgrespassword
+      DATABASE_NAME: sakila
+    depends_on:
+      database:
+        condition: service_healthy
