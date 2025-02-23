@@ -1,11 +1,11 @@
 import dataclasses
-from typing import Iterator, AsyncIterator
+from typing import AsyncIterator, Iterator
 
 from sqlalchemy import orm
 from sqlalchemy.ext import asyncio
 
 from myapi.shared import configuration
-from myapi.shared.database import session, async_session
+from myapi.shared.database import async_session, session
 
 database_configuration = configuration.DatabaseConfiguration.from_environment()
 database_session_factory = session.SQLAlchemySessionFactory(
