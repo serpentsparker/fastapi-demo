@@ -1,8 +1,11 @@
 import contextlib
+import logging
 from typing import Iterator
 
 import sqlalchemy
 from sqlalchemy import orm
+
+logger = logging.getLogger(__name__)
 
 
 class SQLAlchemySessionFactory:
@@ -22,4 +25,8 @@ class SQLAlchemySessionFactory:
         """
 
         with self.sessionmaker.begin() as session:  # pylint: disable=no-member
-            yield session
+            try:
+                logger.debug("opened the database session.")
+                yield session
+            finally:
+                logger.debug("closed the database session.")
