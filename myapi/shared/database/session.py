@@ -1,19 +1,20 @@
 import contextlib
+import logging
 from typing import Iterator
 
 import sqlalchemy
 from sqlalchemy import orm
 
+logger = logging.getLogger(__name__)
+
 
 class SQLAlchemySessionFactory:
-    def __init__(self, host: str, port: int, user: str, password: str, database: str):
-        database_url = (
-            rf"postgresql+psycopg://{user}:{password}@{host}:{port}/{database}"
-        )
-        self._engine = sqlalchemy.create_engine(
+    def __init__(self, host: str, port: int, user: str, password: str, name: str):
+        database_url = rf"postgresql+psycopg://{user}:{password}@{host}:{port}/{name}"
+        self.engine = sqlalchemy.create_engine(
             database_url, poolclass=sqlalchemy.NullPool
         )
-        self._sessionmaker = orm.sessionmaker(bind=self._engine, expire_on_commit=False)
+        self.sessionmaker = orm.sessionmaker(bind=self.engine, expire_on_commit=False)
 
     @contextlib.contextmanager
     def get_session(self) -> Iterator[orm.Session]:
@@ -23,5 +24,9 @@ class SQLAlchemySessionFactory:
             Iterator[orm.Session]: A SQLAlchemy ORM session to the database.
         """
 
-        with self._sessionmaker.begin() as session:  # pylint: disable=no-member
-            yield session
+        with self.sessionmaker.begin() as session:  # pylint: disable=no-member
+            try:
+                logger.debug("opened the database session.")
+                yield session
+            finally:
+                logger.debug("closed the database session.")

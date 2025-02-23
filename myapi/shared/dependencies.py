@@ -1,17 +1,18 @@
-from typing import Iterator
+import dataclasses
+from typing import AsyncIterator, Iterator
 
 from sqlalchemy import orm
+from sqlalchemy.ext import asyncio
 
 from myapi.shared import configuration
-from myapi.shared.database import session
+from myapi.shared.database import async_session, session
 
 database_configuration = configuration.DatabaseConfiguration.from_environment()
 database_session_factory = session.SQLAlchemySessionFactory(
-    database_configuration.host,
-    database_configuration.port,
-    database_configuration.user,
-    database_configuration.password,
-    database_configuration.name,
+    **dataclasses.asdict(database_configuration)
+)
+async_database_session_factory = async_session.SQLAlchemyAsyncSessionFactory(
+    **dataclasses.asdict(database_configuration)
 )
 
 
@@ -24,3 +25,14 @@ def get_database_session() -> Iterator[orm.Session]:
 
     with database_session_factory.get_session() as database_session:
         yield database_session
+
+
+async def get_async_database_session() -> AsyncIterator[asyncio.AsyncSession]:
+    """A generator for asynchronous SQLAlchemy ORM sessions to the database.
+
+    Yields:
+        AsyncIterator[asyncio.AsyncSession]: An asynchronous SQLAlchemy ORM session to the database.
+    """
+
+    async with async_database_session_factory.get_session() as async_session:
+        yield async_session
