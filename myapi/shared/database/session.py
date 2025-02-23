@@ -12,7 +12,7 @@ class SQLAlchemySessionFactory:
     def __init__(self, host: str, port: int, user: str, password: str, name: str):
         database_url = rf"postgresql+psycopg://{user}:{password}@{host}:{port}/{name}"
         self.engine = sqlalchemy.create_engine(
-            database_url, poolclass=sqlalchemy.NullPool
+            database_url, pool_size=50, max_overflow=0
         )
         self.sessionmaker = orm.sessionmaker(bind=self.engine, expire_on_commit=False)
 
