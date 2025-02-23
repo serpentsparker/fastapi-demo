@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class SQLAlchemyAsyncSessionFactory:
     def __init__(self, host: str, port: int, user: str, password: str, name: str):
-        database_url = rf"postgresql+psycopg://{user}:{password}@{host}:{port}/{name}"
+        database_url = rf"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
         self.engine = asyncio.create_async_engine(
             database_url, pool_size=50, max_overflow=0
         )
