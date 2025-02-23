@@ -4,14 +4,11 @@ import os
 
 @dataclasses.dataclass
 class DatabaseConfiguration:
-    def __init__(
-        self, host: str, port: int, user: str, password: str, name: str
-    ) -> None:
-        self.host = host
-        self.port = port
-        self.user = user
-        self.password = password
-        self.name = name
+    host: str
+    port: int
+    user: str
+    password: str
+    name: str
 
     @classmethod
     def from_environment(cls):
