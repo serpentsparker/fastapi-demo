@@ -1,3 +1,5 @@
+from typing import Iterator
+
 from sqlalchemy import orm
 
 from myapi.shared import configuration
@@ -13,5 +15,12 @@ database_session_factory = session.SQLAlchemySessionFactory(
 )
 
 
-def get_database_session() -> orm.Session:
-    return database_session_factory.get_session()
+def get_database_session() -> Iterator[orm.Session]:
+    """A generator for SQLAlchemy ORM sessions to the database.
+
+    Yields:
+        Iterator[orm.Session]: A SQLAlchemy ORM session to the database.
+    """
+
+    with database_session_factory.get_session() as database_session:
+        yield database_session

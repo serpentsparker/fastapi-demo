@@ -19,11 +19,10 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             actor.Actor: Instance of the created actor.
         """
 
-        db_actor = models.Actor(first_name, last_name)
+        db_actor = models.Actor(first_name=first_name, last_name=last_name)
 
         self._db.add(db_actor)
-        self._db.commit()
-        self._db.refresh(db_actor)
+        self._db.flush()
 
         return service.Actor(
             actor_id=db_actor.id,
@@ -93,8 +92,7 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             raise exceptions.ActorNotFoundError(actor_id)
 
         db_actor.first_name = first_name
-        self._db.commit()
-        self._db.refresh(db_actor)
+        self._db.flush()
 
         return service.Actor(
             actor_id=db_actor.id,
@@ -122,8 +120,7 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             raise exceptions.ActorNotFoundError(actor_id)
 
         db_actor.last_name = last_name
-        self._db.commit()
-        self._db.refresh(db_actor)
+        self._db.flush()
 
         return service.Actor(
             actor_id=db_actor.id,
@@ -147,4 +144,3 @@ class SQLAlchemyActorMapper(service.ActorMapper):
             raise exceptions.ActorNotFoundError(actor_id)
 
         self._db.delete(db_actor)
-        self._db.commit()

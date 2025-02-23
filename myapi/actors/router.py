@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Iterator
 
 import fastapi
 
@@ -13,8 +13,14 @@ router = fastapi.APIRouter(
 
 def get_actor_mapper(
     database_session=fastapi.Depends(dependencies.get_database_session),
-) -> service.ActorMapper:
-    return queries.SQLAlchemyActorMapper(database_session)
+) -> Iterator[service.ActorMapper]:
+    """A generator for concrete instances of the Actor data mapper.
+
+    Yields:
+        Iterator[service.ActorMapper]: A concrete instance of an Actor data mapper.
+    """
+
+    yield queries.SQLAlchemyActorMapper(database_session)
 
 
 @router.post("/", response_model=schemas.ReadActorResponse)

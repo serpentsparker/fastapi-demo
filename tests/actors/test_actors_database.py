@@ -40,7 +40,7 @@ class TestActorRepository(metaclass=Singleton):
 
         self.actor_count += 1
         logger.info(
-            f"Creating an actor domain model instance with ID {self.actor_count}"
+            "Creating an actor domain model instance with ID %d", self.actor_count
         )
 
         actor = service.Actor(self.actor_count, "Test", "Actor")
@@ -77,12 +77,13 @@ def create_actor_table(
 
     # Create actor database model instances for the domain actors
     db_actors = [
-        models.Actor(actor.first_name, actor.last_name) for actor in domain_actors
+        models.Actor(first_name=actor.first_name, last_name=actor.last_name)
+        for actor in domain_actors
     ]
 
     # Add the actors to the actor table on the test database
     db_session.add_all(db_actors)
-    db_session.commit()
+    db_session.flush()
 
     yield domain_actors, db_actors
 
