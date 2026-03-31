@@ -49,10 +49,10 @@ def update_actor(
     actor_mapper: Annotated[service.ActorMapper, fastapi.Depends(get_actor_mapper)],
 ):
     try:
-        if new_attributes.first_name:
+        if new_attributes.first_name is not None:
             actor_mapper.update_actor_first_name(actor_id, new_attributes.first_name)
 
-        if new_attributes.last_name:
+        if new_attributes.last_name is not None:
             actor_mapper.update_actor_last_name(actor_id, new_attributes.last_name)
 
         return actor_mapper.read_actor(actor_id)
